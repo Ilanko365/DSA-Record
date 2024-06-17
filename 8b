@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure for a node in the Binary Search Tree
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Function to create a new node
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert a node into the Binary Search Tree
+struct Node* insert(struct Node* root, int data) {
+    if (root == NULL) {
+        return createNode(data);
+    }
+    if (data < root->data) {
+        root->left = insert(root->left, data);
+    } else if (data > root->data) {
+        root->right = insert(root->right, data);
+    }
+    return root;
+}
+
+// Function to find the minimum value node in a tree
+struct Node* minValueNode(struct Node* node) {
+    struct Node* current = node;
+    while (current->left != NULL) {
+        current = current->left;
+    }
+    return current;
+}
+
+// Function to delete a node from the Binary Search Tree
+struct Node* deleteNode(struct Node* root, int data) {
+    if (root == NULL) {
+        return root;
+    }
+    if (data < root->data) {
+        root->left = deleteNode(root->left, data);
+    } else if (data > root->data) {
+        root->right = deleteNode(root->right, data);
+    } else {
+        if (root->left == NULL) {
+            struct Node* temp = root->right;
+            free(root);
+            return temp;
+        } else if (root->right == NULL) {
+            struct Node* temp = root->left;
+            free(root);
+            return temp;
+        }
+        struct Node* temp = minValueNode(root->right);
+        root->data = temp->data;
+        root->right = deleteNode(root->right, temp->data);
+    }
+    return root;
+}
+
+// Function to search for a key in the Binary Search Tree
+struct Node* search(struct Node* root, int key) {
+    if (root == NULL || root->data == key) {
+        return root;
+    }
+    if (key < root->data) {
+        return search(root->left, key);
+    }
+    return search(root->right, key);
+}
+
+// Function to display the Binary Search Tree (inorder traversal)
+void display(struct Node* root) {
+    if (root != NULL) {
+        display(root->left);
+        printf("%d ", root->data);
+        display(root->right);
+    }
+}
+
+int main() {
+    struct Node* root = NULL;
+    int choice, data, key;
+
+    do {
+        printf("\n1. Insert\n");
+        printf("2. Delete\n");
+        printf("3. Search\n");
+        printf("4. Display\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1:
+                printf("Enter data to insert: ");
+                scanf("%d", &data);
+                root = insert(root, data);
+                break;
+            case 2:
+                printf("Enter data to delete: ");
+                scanf("%d", &data);
+                root = deleteNode(root, data);
+                break;
+            case 3:
+                printf("Enter data to search: ");
+                scanf("%d", &key);
+                if (search(root, key) != NULL) {
+                    printf("%d found in the BST.\n", key);
+                } else {
+                    printf("%d not found in the BST.\n", key);
+                }
+                break;
+            case 4:
+                printf("Binary Search Tree (inorder traversal): ");
+                display(root);
+                printf("\n");
+                break;
+            case 5:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice! Please enter a valid option.\n");
+        }
+    } while(choice != 5);
+
+    return 0;
+}
