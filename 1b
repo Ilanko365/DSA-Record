@@ -1,0 +1,18 @@
+#include <stdio.h>
+int main() {
+    int a,b;
+    printf("enter the coordinates:");
+    scanf("%d %d",&a,&b);
+    if(a>0&&b>0)
+    { printf("The coordinate point (%d,%d) lies in the First quadrant.",a,b);}
+    else if(a>0&&b<0)
+    { printf("The coordinate point (%d,%d) lies in the second quadrant.",a,b);}
+    else if(a<0&&b>0)
+    { printf("The coordinate point (%d,%d) lies in the third quadrant.",a,b);}
+    else if(a<0&&b<0)
+    { printf("The coordinate point (%d,%d) lies in the Fourth quadrant.",a,b);}
+    else{
+    printf("The coordinate point (%d,%d) lies in the centre.");}
+
+    return 0;
+}
