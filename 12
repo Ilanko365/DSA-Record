@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define SIZE 10
+
+struct Node {
+    int data;
+    struct Node *next;
+};
+
+int hash(int key);
+void insertOpenAddressing(int hashTable[], int key);
+void displayOpenAddressing(int hashTable[]);
+void insertClosedAddressing(struct Node *hashTable[], int key);
+void displayClosedAddressing(struct Node *hashTable[]);
+void rehashing(int hashTable[], int key);
+
+int main() {
+    int openAddressingTable[SIZE] = {-1};
+    struct Node *closedAddressingTable[SIZE];
+    for (int i = 0; i < SIZE; i++) {
+        closedAddressingTable[i] = NULL;
+    }
+
+    int keys[] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    int numKeys = sizeof(keys) / sizeof(keys[0]);
+   
+    printf("Inserting using Open Addressing:\n");
+    for (int i = 0; i < numKeys; i++) {
+        insertOpenAddressing(openAddressingTable, keys[i]);
+    }
+    displayOpenAddressing(openAddressingTable);
+
+    printf("\nInserting using Closed Addressing:\n");
+    for (int i = 0; i < numKeys; i++) {
+        insertClosedAddressing(closedAddressingTable, keys[i]);
+    }
+    displayClosedAddressing(closedAddressingTable);
+
+    return 0;
+}
+
+int hash(int key) {
+    return key % SIZE;
+}
+
+void insertOpenAddressing(int hashTable[], int key) {
+    int index = hash(key);
+    while (hashTable[index] != -1) {
+        index = (index + 1) % SIZE;
+    }
+    hashTable[index] = key;
+}
+
+void displayOpenAddressing(int hashTable[]) {
+    printf("Hash Table (Open Addressing):\n");
+    for (int i = 0; i < SIZE; i++) {
+        printf("%d: ", i);
+        if (hashTable[i] != -1) {
+            printf("%d", hashTable[i]);
+        }
+        printf("\n");
+    }
+}
+
+void insertClosedAddressing(struct Node *hashTable[], int key) {
+    int index = hash(key);
+    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+    newNode->data = key;
+    newNode->next = NULL;
+
+    if (hashTable[index] == NULL) {
+        hashTable[index] = newNode;
+    } else {
+        struct Node *temp = hashTable[index];
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+    }
+}
+
+void displayClosedAddressing(struct Node *hashTable[]) {
+    printf("Hash Table (Closed Addressing):\n");
+    for (int i = 0; i < SIZE; i++) {
+        printf("%d: ", i);
+        struct Node *temp = hashTable[i];
+        while (temp != NULL) {
+            printf("%d -> ", temp->data);
+            temp = temp->next;
+        }
+        printf("NULL\n");
+    }
+}
+
+void rehashing(int hashTable[], int key) {
+}
