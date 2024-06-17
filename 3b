@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <math.h>
+
+typedef union {
+    struct {
+        float radius;
+    } circle;
+    struct {
+        float side;
+    } square;
+    struct {
+        float length;
+        float width;
+    } rectangle;
+} Shape;
+
+float calculateArea(Shape s, int type) {
+    switch (type) {
+        case 0:
+            return M_PI * s.circle.radius * s.circle.radius;
+        case 1:
+            return s.square.side * s.square.side;
+        case 2:
+            return s.rectangle.length * s.rectangle.width;
+        default:
+            return 0.0;
+    }
+}
+
+int main() {
+    int n, type;
+    Shape shapes[100];
+    float largestArea = 0.0;
+
+    printf("Enter the number of shapes: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter type of shape (0 for circle, 1 for square, 2 for rectangle) for shape %d: ", i + 1);
+        scanf("%d", &type);
+
+        switch (type) {
+            case 0:
+                printf("Enter radius of circle: ");
+                scanf("%f", &shapes[i].circle.radius);
+                break;
+            case 1:
+                printf("Enter side length of square: ");
+                scanf("%f", &shapes[i].square.side);
+                break;
+            case 2:
+                printf("Enter length and width of rectangle: ");
+                scanf("%f %f", &shapes[i].rectangle.length, &shapes[i].rectangle.width);
+                break;
+            default:
+                printf("Invalid shape type.\n");
+                i--;
+                continue;
+        }
+
+        float area = calculateArea(shapes[i], type);
+        printf("Area of shape %d: %.2f\n", i + 1, area);
+ if (area > largestArea) {
+            largestArea = area;
+        }
+    }
+
+    printf("Largest area among the shapes: %.2f\n", largestArea);
+
+    return 0;
+}
