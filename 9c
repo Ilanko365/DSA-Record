@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+struct Node {
+    int dest;
+    struct Node* next;
+};
+
+struct AdjList {
+    struct Node* head;
+};
+
+struct Graph {
+    int num_vertices;
+    struct AdjList* array;
+};
+
+struct Node* createNode(int dest) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->dest = dest;
+    newNode->next = NULL;
+    return newNode;
+}
+
+struct Graph* createGraph(int num_vertices) {
+    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
+    graph->num_vertices = num_vertices;
+    graph->array = (struct AdjList*)malloc(num_vertices * sizeof(struct AdjList));
+   
+    for (int i = 0; i < num_vertices; ++i)
+        graph->array[i].head = NULL;
+   
+    return graph;
+}
+
+void addEdge(struct Graph* graph, int src, int dest) {
+    struct Node* newNode = createNode(dest);
+    newNode->next = graph->array[src].head;
+    graph->array[src].head = newNode;
+   
+    newNode = createNode(src);
+    newNode->next = graph->array[dest].head;
+    graph->array[dest].head = newNode;
+}
+
+void DFSUtil(struct Graph* graph, int vertex, bool* visited) {
+    visited[vertex] = true;
+    printf("%d ", vertex);
+   
+    struct Node* temp = graph->array[vertex].head;
+    while (temp) {
+        int adj_vertex = temp->dest;
+        if (!visited[adj_vertex])
+            DFSUtil(graph, adj_vertex, visited);
+        temp = temp->next;
+    }
+}
+
+void DFS(struct Graph* graph, int source) {
+    bool* visited = (bool*)malloc(graph->num_vertices * sizeof(bool));
+    for (int i = 0; i < graph->num_vertices; ++i)
+        visited[i] = false;
+   
+    DFSUtil(graph, source, visited);
+   
+    free(visited);
+}
+
+int main() {
+    int V = 4;
+    struct Graph* graph = createGraph(V);
+    addEdge(graph, 0, 1);
+    addEdge(graph, 0, 2);
+    addEdge(graph, 1, 2);
+    addEdge(graph, 2, 3);
+   
+    int source = 0;
+    printf("Depth-First Search (DFS) traversal from vertex %d: ", source);
+    DFS(graph, source);
+   
+    return 0;
+}
