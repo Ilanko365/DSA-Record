@@ -1,0 +1,84 @@
+#include <SDL2/SDL.h>
+#include <stdbool.h>
+
+typedef struct {
+    int x, y;
+} Point;
+
+// Function declarations
+void initSDL(SDL_Window **window, SDL_Renderer **renderer);
+void cleanup(SDL_Window *window, SDL_Renderer *renderer);
+
+int main() {
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
+    initSDL(&window, &renderer);
+
+    // Game variables
+    Point snake[100];
+    int snake_length = 1;
+    Point food = {rand() % 20, rand() % 20};
+    int direction = 1; // 0: up, 1: right, 2: down, 3: left
+    bool game_over = false;
+
+    // Main game loop
+    while (!game_over) {
+        // Handle events
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                game_over = true;
+            } else if (event.type == SDL_KEYDOWN) {
+                switch (event.key.keysym.sym) {
+                    case SDLK_UP: direction = 0; break;
+                    case SDLK_RIGHT: direction = 1; break;
+                    case SDLK_DOWN: direction = 2; break;
+                    case SDLK_LEFT: direction = 3; break;
+                }
+            }
+        }
+
+        // Update snake position
+        for (int i = snake_length - 1; i > 0; i--) {
+            snake[i] = snake[i - 1];
+        }
+        switch (direction) {
+            case 0: snake[0].y--; break;
+            case 1: snake[0].x++; break;
+            case 2: snake[0].y++; break;
+            case 3: snake[0].x--; break;
+        }
+
+        // Check for collisions
+        if (snake[0].x < 0 || snake[0].x >= 20 || snake[0].y < 0 || snake[0].y >= 20) {
+            game_over = true;
+        }
+
+        // Render
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        for (int i = 0; i < snake_length; i++) {
+            SDL_Rect rect = {snake[i].x * 20, snake[i].y * 20, 20, 20};
+            SDL_RenderFillRect(renderer, &rect);
+        }
+        SDL_RenderPresent(renderer);
+
+        SDL_Delay(100);
+    }
+
+    cleanup(window, renderer);
+    return 0;
+}
+
+void initSDL(SDL_Window **window, SDL_Renderer **renderer) {
+    SDL_Init(SDL_INIT_VIDEO);
+    *window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, 0);
+    *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
+}
+
+void cleanup(SDL_Window *window, SDL_Renderer *renderer) {
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
