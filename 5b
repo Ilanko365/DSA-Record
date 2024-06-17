@@ -1,0 +1,52 @@
+#include <stdio.h>
+
+// Structure to represent a stack
+struct Stack {
+    int items[100];
+    int top;
+};
+
+// Function to initialize a stack
+void initialize(struct Stack *s) {
+    s->top = -1;
+}
+
+// Function to check if the stack is empty
+int isEmpty(struct Stack *s) {
+    return s->top == -1;
+}
+
+// Function to push an element onto the stack
+void push(struct Stack *s, int value) {
+    s->items[++(s->top)] = value;
+}
+
+// Function to pop an element from the stack
+int pop(struct Stack *s) {
+    return s->items[(s->top)--];
+}
+
+// Function to display the move of disks from one peg to another
+void displayMove(char source, char destination) {
+    printf("Move disk from %c to %c\n", source, destination);
+}
+
+// Recursive function to solve the Tower of Hanoi problem
+void towerOfHanoi(int numDisks, char source, char auxiliary, char destination) {
+    if (numDisks == 1) {
+        displayMove(source, destination);
+        return;
+    }
+    towerOfHanoi(numDisks - 1, source, destination, auxiliary);
+    displayMove(source, destination);
+    towerOfHanoi(numDisks - 1, auxiliary, source, destination);
+}
+
+int main() {
+    int numDisks;
+    printf("Enter the number of disks: ");
+    scanf("%d", &numDisks);
+    printf("Moves to solve the Tower of Hanoi with %d disks:\n", numDisks);
+    towerOfHanoi(numDisks, 'A', 'B', 'C');
+    return 0;
+}
