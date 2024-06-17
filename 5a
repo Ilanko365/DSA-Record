@@ -1,0 +1,127 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h> // for isdigit
+
+// Structure to represent a stack
+struct Stack {
+    int top;
+    int items[100];
+};
+
+// Function to initialize a stack
+void initialize(struct Stack *s) {
+    s->top = -1;
+}
+
+// Function to check if the stack is full
+int isFull(struct Stack *s) {
+    return s->top == 99;
+}
+
+// Function to check if the stack is empty
+int isEmpty(struct Stack *s) {
+    return s->top == -1;
+}
+
+// Function to push an element onto the stack
+void push(struct Stack *s, int value) {
+    if (isFull(s)) {
+        printf("Stack overflow\n");
+        return;
+    }
+    s->items[++(s->top)] = value;
+}
+
+// Function to pop an element from the stack
+int pop(struct Stack *s) {
+    if (isEmpty(s)) {
+        printf("Stack underflow\n");
+        return -1;
+    }
+    return s->items[(s->top)--];
+}
+
+// Function to evaluate a postfix expression
+int evaluatePostfix(char *expr) {
+    struct Stack s;
+    initialize(&s);
+
+    while (*expr) {
+        if (isdigit(*expr)) {
+            push(&s, *expr - '0');
+        } else {
+            int operand2 = pop(&s);
+            int operand1 = pop(&s);
+            switch (*expr) {
+                case '+':
+                    push(&s, operand1 + operand2);
+                    break;
+                case '-':
+                    push(&s, operand1 - operand2);
+                    break;
+                case '*':
+                    push(&s, operand1 * operand2);
+                    break;
+                case '/':
+                    push(&s, operand1 / operand2);
+                    break;
+            }
+        }
+        expr++;
+    }
+
+    return pop(&s);
+}
+
+// Function to evaluate a prefix expression
+int evaluatePrefix(char *expr) {
+    struct Stack s;
+    initialize(&s);
+
+    // Find the end of the expression
+    char *end = expr;
+    while (*end != '\0') {
+        end++;
+    }
+
+    // Start from the end and evaluate the expression
+    while (end != expr) {
+        end--;
+        if (isdigit(*end)) {
+            push(&s, *end - '0');
+        } else {
+            int operand1 = pop(&s);
+            int operand2 = pop(&s);
+            switch (*end) {
+                case '+':
+                    push(&s, operand1 + operand2);
+                    break;
+                case '-':
+                    push(&s, operand1 - operand2);
+                    break;
+                case '*':
+                    push(&s, operand1 * operand2);
+                    break;
+                case '/':
+                    push(&s, operand1 / operand2);
+                    break;
+            }
+        }
+    }
+
+    return pop(&s);
+}
+
+int main() {
+    // Example of postfix expression: "3 5 + 2 *"
+    char postfixExpr[] = "35+2*";
+    int postfixResult = evaluatePostfix(postfixExpr);
+    printf("Postfix expression evaluation: %d\n", postfixResult);
+
+    // Example of prefix expression: "* + 3 5 2"
+    char prefixExpr[] = "*+352";
+    int prefixResult = evaluatePrefix(prefixExpr);
+    printf("Prefix expression evaluation: %d\n", prefixResult);
+
+    return 0;
+}
