@@ -1,0 +1,130 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+// Structure to represent a stack
+struct Stack {
+    int top;
+    int items[100];
+};
+
+// Function to initialize a stack
+void initialize(struct Stack *s) {
+    s->top = -1;
+}
+
+// Function to check if the stack is empty
+int isEmpty(struct Stack *s) {
+    return s->top == -1;
+}
+
+// Function to check if the stack is full
+int isFull(struct Stack *s) {
+    return s->top == 99;
+}
+
+// Function to push an element onto the stack
+void push(struct Stack *s, int value) {
+    if (isFull(s)) {
+        printf("Stack overflow\n");
+        exit(1);
+    }
+    s->items[++(s->top)] = value;
+}
+
+// Function to pop an element from the stack
+int pop(struct Stack *s) {
+    if (isEmpty(s)) {
+        printf("Stack underflow\n");
+        exit(1);
+    }
+    return s->items[(s->top)--];
+}
+
+// Function to get precedence of operators
+int precedence(char operator) {
+    if (operator == '*' || operator == '/')
+        return 2;
+    else if (operator == '+' || operator == '-')
+        return 1;
+    else
+        return 0;
+}
+
+// Function to apply operator on operands
+int applyOperator(int operand1, char operator, int operand2) {
+    switch (operator) {
+        case '+':
+            return operand1 + operand2;
+        case '-':
+            return operand1 - operand2;
+        case '*':
+            return operand1 * operand2;
+        case '/':
+            return operand1 / operand2;
+        default:
+            printf("Invalid operator\n");
+            exit(1);
+    }
+}
+
+// Function to evaluate infix expression
+int evaluateInfix(char *expression) {
+    struct Stack operandStack, operatorStack;
+    initialize(&operandStack);
+    initialize(&operatorStack);
+
+    int i = 0;
+    while (expression[i] != '\0') {
+        if (isdigit(expression[i])) {
+            int operand = 0;
+            while (isdigit(expression[i])) {
+                operand = operand * 10 + (expression[i] - '0');
+                i++;
+            }
+            push(&operandStack, operand);
+        } else if (expression[i] == '(') {
+            push(&operatorStack, expression[i]);
+            i++;
+        } else if (expression[i] == ')') {
+            while (!isEmpty(&operatorStack) && operatorStack.items[operatorStack.top] != '(') {
+                int operand2 = pop(&operandStack);
+                int operand1 = pop(&operandStack);
+                char operator = pop(&operatorStack);
+                push(&operandStack, applyOperator(operand1, operator, operand2));
+            }
+            pop(&operatorStack); // Pop '('
+            i++;
+        } else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/') {
+            while (!isEmpty(&operatorStack) && precedence(operatorStack.items[operatorStack.top]) >= precedence(expression[i])) {
+                int operand2 = pop(&operandStack);
+                int operand1 = pop(&operandStack);
+                char operator = pop(&operatorStack);
+                push(&operandStack, applyOperator(operand1, operator, operand2));
+            }
+            push(&operatorStack, expression[i]);
+            i++;
+        } else {
+            printf("Invalid character in expression\n");
+            exit(1);
+        }
+    }
+
+    while (!isEmpty(&operatorStack)) {
+        int operand2 = pop(&operandStack);
+        int operand1 = pop(&operandStack);
+        char operator = pop(&operatorStack);
+        push(&operandStack, applyOperator(operand1, operator, operand2));
+    }
+
+    return pop(&operandStack);
+}
+
+int main() {
+    char expression[100];
+    printf("Enter the infix expression: ");
+    scanf("%[^\n]s", expression);
+    int result = evaluateInfix(expression);
+    printf("Result of infix expression evaluation: %d\n", result);
+    return 0;
+}
