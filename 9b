@@ -1,0 +1,130 @@
+#include <stdlib.h>
+#include<stdio.h>
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+struct Graph {
+    int num_vertices;
+    struct Node** adj_list;
+};
+
+struct Queue {
+    int front, rear;
+    int* items;
+    int max_size;
+};
+
+struct Node* create_node(int data) {
+    struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+    new_node->data = data;
+    new_node->next = NULL;
+    return new_node;
+}
+
+struct Graph* create_graph(int num_vertices) {
+    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
+    graph->num_vertices = num_vertices;
+    graph->adj_list = (struct Node**)malloc(num_vertices * sizeof(struct Node*));
+
+    for (int i = 0; i < num_vertices; ++i) {
+        graph->adj_list[i] = NULL;
+    }
+
+    return graph;
+}
+
+void add_edge(struct Graph* graph, int src, int dest) {
+    struct Node* new_node = create_node(dest);
+    new_node->next = graph->adj_list[src];
+    graph->adj_list[src] = new_node;
+
+    new_node = create_node(src);
+    new_node->next = graph->adj_list[dest];
+    graph->adj_list[dest] = new_node;
+}
+
+struct Queue* create_queue(int max_size) {
+    struct Queue* queue = (struct Queue*)malloc(sizeof(struct Queue));
+    queue->front = -1;
+    queue->rear = -1;
+    queue->max_size = max_size;
+    queue->items = (int*)malloc(max_size * sizeof(int));
+    return queue;
+}
+
+int is_empty(struct Queue* queue) {
+    return queue->front == -1;
+}
+
+void enqueue(struct Queue* queue, int item) {
+    if (queue->rear == queue->max_size - 1) {
+        printf("Queue overflow\n");
+        return;
+    }
+    if (queue->front == -1) {
+        queue->front = 0;
+    }
+    queue->rear++;
+    queue->items[queue->rear] = item;
+}
+
+int dequeue(struct Queue* queue) {
+    if (is_empty(queue)) {
+        printf("Queue underflow\n");
+        return -1;
+    }
+    int item = queue->items[queue->front];
+    if (queue->front == queue->rear) {
+        queue->front = -1;
+        queue->rear = -1;
+    } else {
+        queue->front++;
+    }
+    return item;
+}
+
+void bfs(struct Graph* graph, int start_vertex) {
+    struct Queue* queue = create_queue(graph->num_vertices);
+    int* visited = (int*)malloc(graph->num_vertices * sizeof(int));
+    for (int i = 0; i < graph->num_vertices; i++) {
+        visited[i] = 0;
+    }
+
+    visited[start_vertex] = 1;
+    enqueue(queue, start_vertex);
+
+    while (!is_empty(queue)) {
+        int current_vertex = dequeue(queue);
+        printf("%d ", current_vertex);
+
+        struct Node* temp = graph->adj_list[current_vertex];
+        while (temp) {
+            int adj_vertex = temp->data;
+            if (!visited[adj_vertex]) {
+                visited[adj_vertex] = 1;
+                enqueue(queue, adj_vertex);
+            }
+            temp = temp->next;
+        }
+    }
+
+    free(queue->items);
+    free(queue);
+    free(visited);
+}
+
+int main() {
+    int num_vertices = 4;
+    struct Graph* graph = create_graph(num_vertices);
+    add_edge(graph, 0, 1);
+    add_edge(graph, 0, 2);
+    add_edge(graph, 1, 2);
+    add_edge(graph, 2, 3);
+
+    printf("Breadth-First Search traversal starting from vertex 0: ");
+    bfs(graph, 0);
+
+    return 0;
+}
