@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Student {
+    char name[50];
+    int rollNumber;
+    int marks[3];
+    int totalMarks;
+    float averageMarks;
+};
+
+void readStudentDetails(struct Student *s) {
+    printf("Name: ");
+    scanf("%s", s->name);
+    printf("Roll Number: ");
+    scanf("%d", &s->rollNumber);
+    printf("Marks in three subjects: ");
+    scanf("%d %d %d", &s->marks[0], &s->marks[1], &s->marks[2]);
+    s->totalMarks = s->marks[0] + s->marks[1] + s->marks[2];
+    s->averageMarks = s->totalMarks / 3.0;
+}
+
+void displayStudentDetails(struct Student s) {
+    printf("Name: %s\n", s.name);
+    printf("Roll Number: %d\n", s.rollNumber);
+    printf("Total Marks: %d\n", s.totalMarks);
+    printf("Average Marks: %.2f\n", s.averageMarks);
+}
+
+int main() {
+    int n, i;
+    printf("Enter the number of students: ");
+    scanf("%d", &n);
+
+    struct Student *students = (struct Student *)malloc(n * sizeof(struct Student));
+
+    for (i = 0; i < n; i++) {
+        printf("Enter details for student %d:\n", i + 1);
+        readStudentDetails(&students[i]);
+    }
+
+    printf("Student Details:\n");
+    for (i = 0; i < n; i++) {
+        printf("Student %d:\n", i + 1);
+        displayStudentDetails(students[i]);
+    }
+
+    struct Student highestStudent = students[0];
+    for (i = 1; i < n; i++) {
+        if (students[i].totalMarks > highestStudent.totalMarks) {
+            highestStudent = students[i];
+        }
+    }
+
+    printf("Student with highest total marks:\n");
+    displayStudentDetails(highestStudent);
+
+    free(students);
+    return 0;
+}
